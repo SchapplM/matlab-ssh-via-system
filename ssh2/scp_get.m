@@ -1,5 +1,5 @@
 function ssh2_struct = scp_get(ssh2_struct, remoteFilename, localPath, remotePath)
-% SCP_GET   Reuse configured ssh2_connection to SCP remote files to local host
+% SCP_GET   use ssh2 configuration to SCP remote files to local host
 %
 %   SCP_GET(SSH2_CONN,REMOTEFILENAME,[LOCALPATH],[REMOTEPATH])
 %   uses a ssh2_connection and downloads the REMOTEFILENAME from the remote
@@ -17,7 +17,7 @@ function ssh2_struct = scp_get(ssh2_struct, remoteFilename, localPath, remotePat
 %   REMOTEPATH specifies a specific path on the remote host to look for the 
 %   file to download. Otherwise, the default (home) folder is used.
 %
-%   SCP_GET returns the SSH2_CONN for future use.
+%   SCP_GET returns the SSH2 structure for detailed information.
 %
 %see also scp_get, scp_simple_get, scp_simple_put, scp
 %
@@ -41,11 +41,14 @@ else
     end
 
     ssh2_struct.getfiles = 1;
+    ssh2_struct.sendfiles = 0;
     ssh2_struct.remote_file = remoteFilename;
     ssh2_struct.local_target_direcory = localPath;
     ssh2_struct.remote_target_direcory = remotePath;
     %ssh2_struct.local_file = localFilename; unused in SCP, filename will
     %be taken from remoteFilename
-
+    ssh2_struct.command_result = {};
+    ssh2_struct.command_status = 0;
+    ssh2_struct.command = '';
     ssh2_struct = scp(ssh2_struct);
 end

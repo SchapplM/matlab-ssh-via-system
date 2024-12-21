@@ -1,8 +1,8 @@
 function [ssh2_struct, command_result] = ssh2_command(ssh2_struct, command, enableprint)
-% SSH2_COMMAND   Reuses a SSH2 connection and issues the specified command
+% SSH2_COMMAND   issues the specified command
 %
 %   [SSH2_CONN, [COMMAND_RESULT]] = SSH2_COMMAND(SSH2_CONN,COMMAND,[ENABLEPRINTTOSCREEN])
-%   Connects to the SSH2 host with a configured SSH2_CONN. Once connected 
+%   Connects to the SSH2 host with a given configuration. Once connected 
 %   the COMMAND is issues. The output from the remote host is returned.
 %   The connection to the remote host is still open the function completes.
 %   When finished, close the connection with SSH2_CLOSE(SSH2_CONN)
@@ -24,9 +24,11 @@ function [ssh2_struct, command_result] = ssh2_command(ssh2_struct, command, enab
 if nargin < 3
     enableprint = 0;
 end
-
+ssh2_struct.command_result = {};
+ssh2_struct.command_status = 0;
 ssh2_struct.command = command;
-
+ssh2_struct.getfiles = 0;
+ssh2_struct.sendfiles = 0;
 %% SSH TO HOST
 ssh2_struct = ssh2(ssh2_struct);
 

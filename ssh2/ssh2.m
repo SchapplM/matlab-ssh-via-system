@@ -1,5 +1,5 @@
-function ssh2_struct = ssh2(ssh2_struct, arg2, arg3, arg4, arg5)
-% SSH2   main control program for interfacing with Ganymed Java SSH-2 Library
+function ssh2_struct = ssh2(ssh2_struct, arg2)
+% SSH2   main control program for issuing SSH commands via Matlab's system
 %
 % SSH2(SSH2_CONN) uses the SSH2_CONN to perform a SSH2 function, e.g.
 % issue a command or transfer a file using SCP or SFTP. All options for the
@@ -7,26 +7,18 @@ function ssh2_struct = ssh2(ssh2_struct, arg2, arg3, arg4, arg5)
 % configued manually, or by using any of the SSH2 support functions
 % available. 
 %
-% The SSH2_CONN is returned, but can be reused. Typically, the commands and
-% scp/sftp options are cleared after each function call. If you don't
-% desire this behaviour, supply a copy of the SSH2_CONN into the SSH2
-% function.
+% The SSH2 structure is returned, but the connection can not be reused. 
 %
-% The connection is not closed be default. To close a connection, use
-% SSH2_CLOSE, which will setup SSH2_CONN to close and then call this
-% function. The exception to this are the SIMPLE functions. They all close
-% the connection be default.
+% The connection is closed every time due to the implementation. T
 %
-% For convience, SSH2 also provides a front-end to the SSH2_SIMPLE_COMMAND. 
-% [SSH2_STRUCT] = SSH2(HOSTNAME,USERNAME,PASSWORD,COMMAND,[ENABLEPRINTTOSCREEN])
-%
-%   SSH2 returns the SSH2_CONN for future use.
-%
-%see also ssh2_config, ssh2_config_publickey, ssh2_command, scp_get, scp_put, sftp,get, sftp_put, ssh2_close
+%see also ssh2_config, ssh2_config_publickey, ssh2_command, scp_get, scp_put
 %
 % (c)2011 Boston University - ECE
 %    David Scott Freedman (dfreedma@bu.edu)
-%    Version 2.0
+%    (initial function architecture)
+% (c)2024 Leibniz University Hannover
+%    Moritz Schappler (moritz.schappler@imes.uni-hannover.de)
+%    (changes due to using the system command)
 
 %% BEGIN CODE
 
@@ -61,25 +53,28 @@ if (input_check == 0)
     if nargout == 0
         clear ssh2_struct
     end
-elseif (input_check == 2) %allow ssh2 to be interface to ssh_simpleCommand
-    hostname = ssh2_struct;
-    username = arg2;
-    password = arg3;
-    command = arg4;
-    if nargin < 5
-        if nargout == 0
-            enableprint = 1;
-        else
-            enableprint = 0;
-        end
-    else
-        enableprint = arg4;
-    end
-    if nargout == 0
-        ssh2_simple_command(hostname, username, password, command, enableprint);
-    else
-        ssh2_struct = ssh2_simple_command(hostname, username, password, command, enableprint);
-    end
 else
-    ssh2_struct = ssh2_main(ssh2_struct);    
+  if ispc() % Windows
+    cmd = sprintf('plink -ssh %s@%s -pw %s -batch %s', ssh2_struct.username, ...
+      ssh2_struct.hostname, ssh2_struct.password, ssh2_struct.command);
+    [status, cmdout] = system(cmd);
+    initstr = sprintf(['Keyboard-interactive authentication prompts from server:\n', ...
+       'End of keyboard-interactive prompts from server']);
+    if contains(cmdout, initstr)
+      cmdout = cmdout(length(initstr)+2:end);
+    else
+      warning('Unexepected format of plink output')
+    end
+  else % Linux
+    cmd = sprintf('sshpass %s ssh %s@%s %s', ssh2_struct.password, ...
+      ssh2_struct.username, ssh2_struct.hostname, ssh2_struct.command);
+    [status, cmdout] = system(cmd);
+  end
+  % make each line an element of a cell array
+  ssh2_struct.command_result = ...
+    regexp(cmdout, '(.*)', 'tokens','dotexceptnewline')';
+  for i = 1:numel(ssh2_struct.command_result)
+     ssh2_struct.command_result{i} = char(ssh2_struct.command_result{i,1});
+  end
+  ssh2_struct.command_status = status;
 end

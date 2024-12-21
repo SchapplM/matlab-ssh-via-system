@@ -17,7 +17,7 @@ function ssh2_struct = scp_simple_get(hostname, username, password, remoteFilena
 %   REMOTEPATH specifies a specific path on the remote host to look for the 
 %   file to download. Otherwise, the default (home) folder is used.
 % 
-%   SCP_SIMPLE_GET returns the SSH2_CONN for future use.
+%   SCP_SIMPLE_GET returns the SSH2 structure for detailed information.
 %
 %see also scp_get, scp_put, scp, ssh2, ssh2_simple_command
 %
@@ -41,6 +41,5 @@ else
 
 
     ssh2_struct = ssh2_config(hostname, username, password);
-    ssh2_struct.close_connection = 1; %close connection use
     ssh2_struct = scp_get(ssh2_struct, remoteFilename, localPath, remotePath);
 end

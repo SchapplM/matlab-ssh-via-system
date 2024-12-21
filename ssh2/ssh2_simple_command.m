@@ -32,7 +32,6 @@ else
     end
 
     ssh2_struct = ssh2_config(hostname, username, password);
-    ssh2_struct.close_connection = 1; %close connection use
 
     if nargout == 0
         ssh2_struct = ssh2_command(ssh2_struct, command, enableprint);

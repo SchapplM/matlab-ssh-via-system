@@ -1,9 +1,9 @@
 function ssh2_struct = scp_put(ssh2_struct, localFilename, remotePath, localPath, remoteFilename)
-% SCP_PUT   Reuse configured ssh2_connection to SCP local files to remote host.
+% SCP_PUT   use ssh2 configuration to SCP local files to remote host.
 %
 %   SCP_PUT(SSH2_CONN,LOCALFILENAME,[REMOTEPATH],[LOCALPATH],[REMOTEFILENAME])
 %   uses a ssh2_connection and uploads the LOCALFILENAME to the remote
-%   host using SCP. SSH2_CONN must already be confgured using 
+%   host using SCP. SSH2_CONN must already be configured using 
 %   ssh2_config or ssh2_config_publickey.
 %
 %   LOCALFILENAME can be either a single string, or a cell array of strings. 
@@ -19,7 +19,7 @@ function ssh2_struct = scp_put(ssh2_struct, localFilename, remotePath, localPath
 %   REMOTEFILENAME can be specified to rename the file on the remote host.
 %   If LOCALFILENAME is a cell array, REMOTEFILENAME must be too.
 %
-%   SCP_PUT returns the SSH2_CONN for future use.
+%   SCP_PUT returns the SSH2 structure for detailed information.
 %
 %see also scp_get, scp_simple_get, scp_simple_put, scp
 %
@@ -50,10 +50,13 @@ else
     end
     
     ssh2_struct.sendfiles = 1;
+    ssh2_struct.getfiles = 0;
     ssh2_struct.local_file = localFilename;
     ssh2_struct.local_target_direcory = localPath;
     ssh2_struct.remote_target_direcory = remotePath;
-
+    ssh2_struct.command_result = {};
+    ssh2_struct.command_status = 0;
+    ssh2_struct.command = '';
     ssh2_struct = scp(ssh2_struct);
 end
 

@@ -19,7 +19,7 @@ function ssh2_struct = scp_simple_put(hostname, username, password, localFilenam
 %   REMOTEFILENAME can be specified to rename the file on the remote host.
 %   If LOCALFILENAME is a cell array, REMOTEFILENAME must be too.
 % 
-%   SCP_SIMPLE_PUT returns the SSH2_CONN for future use.
+%   SCP_SIMPLE_PUT returns the SSH2 structure for detailed information.
 %
 %see also scp_get, scp_put, scp, ssh2, ssh2_simple_command
 %
@@ -49,9 +49,7 @@ else
         remoteFilename = [];
     end
     
-    
     ssh2_struct = ssh2_config(hostname, username, password);
-    ssh2_struct.close_connection = 1; %close connection use
     ssh2_struct = scp_put(ssh2_struct, localFilename, remotePath, localPath, remoteFilename);
 end
 
