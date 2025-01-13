@@ -24,8 +24,9 @@ if (nargin >= 3)
     ssh2_struct.username = username;
     ssh2_struct.password = password;
     if nargin >= 4
-        ssh2_struct.port = port; %#ok<STRNU>
-        error('Port not implemented yet in the other functions')
+        ssh2_struct.port = port;
+    else
+        ssh2_struct.port = 22; % Default port for SSH
     end
 else
     help ssh2_config

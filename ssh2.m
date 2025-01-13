@@ -55,8 +55,8 @@ if (input_check == 0)
     end
 else
   if ispc() % Windows
-    cmd = sprintf('plink -ssh %s@%s -pw %s -batch %s', ssh2_struct.username, ...
-      ssh2_struct.hostname, ssh2_struct.password, ssh2_struct.command);
+    cmd = sprintf('plink -P %d -ssh %s@%s -pw %s -batch %s', ssh2_struct.port, ...
+      ssh2_struct.username, ssh2_struct.hostname, ssh2_struct.password, ssh2_struct.command);
     [status, cmdout] = system(cmd);
     initstr = sprintf(['Keyboard-interactive authentication prompts from server:\n', ...
        'End of keyboard-interactive prompts from server']);
@@ -66,8 +66,8 @@ else
       warning('Unexepected format of plink output')
     end
   else % Linux
-    cmd = sprintf('sshpass %s ssh %s@%s %s', ssh2_struct.password, ...
-      ssh2_struct.username, ssh2_struct.hostname, ssh2_struct.command);
+    cmd = sprintf('sshpass -p %s ssh -p %d %s@%s "%s"', ssh2_struct.password, ...
+      ssh2_struct.port, ssh2_struct.username, ssh2_struct.hostname, ssh2_struct.command);
     [status, cmdout] = system(cmd);
   end
   % make each line an element of a cell array
